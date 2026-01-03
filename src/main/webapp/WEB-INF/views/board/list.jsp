@@ -7,6 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <html>
 <head>
     <title>목록</title>
@@ -16,7 +17,6 @@
 <body>
 <div class="container" id="list-page">
     <h1>게시판</h1>
-
     <div class="search-box">
         <select name="searchType">
             <option value="title">제목</option>
@@ -38,27 +38,15 @@
         </tr>
         </thead>
         <tbody>
+        <c:forEach var="list" items="${boardList}">
         <tr>
-            <td class="text-center">5</td>
-            <td><a href="" class="post-title">게시글 제목입니다</a></td>
-            <td class="text-center">홍길동</td>
-            <td class="text-center">2024-01-15</td>
-            <td class="text-center">123</td>
+            <td class="text-center">${list.id}</td>
+            <td><a href="<c:url value='/board/${list.id}'/>" class="post-title">${list.title}</a></td>
+            <td class="text-center">${list.regUserName}</td>
+            <td class="text-center">${list.regDate.toString().substring(0, 16).replace('T', ' ')}</td>
+            <td class="text-center">${list.viewCount}</td>
         </tr>
-        <tr>
-            <td class="text-center">4</td>
-            <td><a href="#" class="post-title">두 번째 게시글입니다</a></td>
-            <td class="text-center">김철수</td>
-            <td class="text-center">2024-01-14</td>
-            <td class="text-center">87</td>
-        </tr>
-        <tr>
-            <td class="text-center">3</td>
-            <td><a href="#" class="post-title">세 번째 게시글입니다</a></td>
-            <td class="text-center">이영희</td>
-            <td class="text-center">2024-01-13</td>
-            <td class="text-center">56</td>
-        </tr>
+        </c:forEach>
         </tbody>
     </table>
 
@@ -78,7 +66,6 @@
 </div>
 </body>
 <script>
-
     function addButtonEvent() {
         $(".btn-write").on("click", function (e) {
            e.preventDefault();

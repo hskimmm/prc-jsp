@@ -14,7 +14,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-<div class="container" id="edit-page" style="display: none;">
+<div class="container" id="edit-page">
   <h1>게시글 수정</h1>
 
   <form method="post" action="" enctype="multipart/form-data">

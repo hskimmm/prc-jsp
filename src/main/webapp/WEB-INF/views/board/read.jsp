@@ -14,7 +14,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-<div class="container" id="detail-page" style="display: none;">
+<div class="container" id="detail-page">
     <h1>게시글 상세보기</h1>
 
     <div class="post-detail">
