@@ -42,7 +42,7 @@
         <div class="post-footer">
             <div class="btn-group">
                 <a href="#" class="btn btn-secondary btn-cancel">목록</a>
-                <a href="#" class="btn btn-success btn-modify">수정</a>
+                <a href="/board/modify/${board.id}" class="btn btn-success">수정</a>
                 <button type="button" class="btn btn-danger btn-delete">삭제</button>
             </div>
         </div>

@@ -1,8 +1,10 @@
 package com.spring.prcjsp.service;
 
 import com.spring.prcjsp.domain.Board;
+import com.spring.prcjsp.dto.ModifyBoardDTO;
 import com.spring.prcjsp.dto.WriteBoardDTO;
 import com.spring.prcjsp.mapper.BoardMapper;
+import com.spring.prcjsp.mapper.FileMapper;
 import com.spring.prcjsp.response.ApiResponse;
 import com.spring.prcjsp.util.FileUploadHandler;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.List;
 public class BoardServiceImpl implements BoardService{
 
     private final BoardMapper boardMapper;
+    private final FileMapper fileMapper;
     private final FileUploadHandler fileUploadHandler;
 
     @Transactional(readOnly = true)
@@ -72,5 +75,42 @@ public class BoardServiceImpl implements BoardService{
     public Board getBoard(Long id) {
         boardMapper.incrementViewCount(id);
         return boardMapper.getBoard(id);
+    }
+
+    @Transactional
+    @Override
+    public ApiResponse<?> modify(ModifyBoardDTO modifyBoardDTO, List<MultipartFile> files, String[] deletedFileIds) {
+        try {
+            Board board = Board.builder()
+                    .id(modifyBoardDTO.getId())
+                    .title(modifyBoardDTO.getTitle())
+                    .content(modifyBoardDTO.getContent())
+                    .regUserName(modifyBoardDTO.getRegUserName())
+                    .build();
+
+            boardMapper.modify(board);
+
+            if (files != null && !files.isEmpty()) {
+                fileUploadHandler.saveFiles(files, "BOARD", board.getId());
+            }
+
+            if (deletedFileIds != null) {
+                for (String file : deletedFileIds) {
+                    Long fileId = Long.parseLong(file);
+                    fileMapper.deleteFile(fileId);
+                }
+            }
+
+            return new ApiResponse<>(true, "게시글을 수정하였습니다");
+        } catch (IOException e) {
+            log.error("게시글 수정(파일 오류) = {}", e.getMessage());
+            throw new RuntimeException("게시글 수정 중 파일 오류가 발생하였습니다");
+        } catch (DataAccessException e) {
+            log.error("게시글 수정(데이터베이스 오류) = {}", e.getMessage());
+            throw new RuntimeException("게시글 수정 중 데이터베이스 오류가 발생하였습니다");
+        } catch (Exception e) {
+            log.error("게시글 수정(기타 오류) = {}", e.getMessage());
+            throw new RuntimeException("게시글 수정 중 오류가 발생하였습니다");
+        }
     }
 }

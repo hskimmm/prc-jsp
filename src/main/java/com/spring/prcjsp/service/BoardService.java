@@ -1,6 +1,7 @@
 package com.spring.prcjsp.service;
 
 import com.spring.prcjsp.domain.Board;
+import com.spring.prcjsp.dto.ModifyBoardDTO;
 import com.spring.prcjsp.dto.WriteBoardDTO;
 import com.spring.prcjsp.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -14,4 +15,6 @@ public interface BoardService {
     ApiResponse<?> write(@Valid WriteBoardDTO writeBoardDTO, List<MultipartFile> files);
 
     Board getBoard(Long id);
+
+    ApiResponse<?> modify(@Valid ModifyBoardDTO modifyBoardDTO, List<MultipartFile> files, String[] deletedFileIds);
 }

@@ -29,4 +29,8 @@
             #{displayOrder}
         )
     </insert>
+
+    <delete id="deleteFile">
+        DELETE FROM file WHERE id = #{fileId}
+    </delete>
 </mapper>

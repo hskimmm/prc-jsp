@@ -14,4 +14,6 @@ public interface BoardMapper {
     Board getBoard(Long id);
 
     void incrementViewCount(Long id);
+
+    void modify(Board board);
 }

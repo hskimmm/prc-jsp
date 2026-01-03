@@ -82,4 +82,11 @@
         view_count = view_count + 1
         WHERE id = #{id}
     </update>
+
+    <update id="modify">
+        UPDATE board SET
+        title = #{title},
+        content = #{content}
+        WHERE id = #{id}
+    </update>
 </mapper>
