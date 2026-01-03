@@ -41,7 +41,7 @@
         <c:forEach var="list" items="${boardList}">
         <tr>
             <td class="text-center">${list.id}</td>
-            <td><a href="<c:url value='/board/${list.id}'/>" class="post-title">${list.title}</a></td>
+            <td><a href="<c:url value='/board/${list.id}?pageNum=${pagination.pageNum}'/>" class="post-title">${list.title}</a></td>
             <td class="text-center">${list.regUserName}</td>
             <td class="text-center">${list.regDate.toString().substring(0, 16).replace('T', ' ')}</td>
             <td class="text-center">${list.viewCount}</td>
@@ -51,13 +51,15 @@
     </table>
 
     <div class="pagination">
-        <a href="#">&laquo;</a>
-        <a href="#">1</a>
-        <span class="active">2</span>
-        <a href="#">3</a>
-        <a href="#">4</a>
-        <a href="#">5</a>
-        <a href="#">&raquo;</a>
+        <c:if test="${page.prev}">
+        <a href="${page.startPage - 1}">&laquo;</a>
+        </c:if>
+        <c:forEach var="num" begin="${page.startPage}" end="${page.endPage}">
+            <a href="${num}" class="${page.pagination.pageNum == num ? 'active' : ''}">${num}</a>
+        </c:forEach>
+        <c:if test="${page.next}">
+        <a href="${page.endPage + 1}">&raquo;</a>
+        </c:if>
     </div>
 
     <div class="btn-group">
@@ -65,11 +67,26 @@
     </div>
 </div>
 </body>
+<form id="pageForm">
+    <input type="hidden" name="pageNum" value="${page.pagination.pageNum}"/>
+</form>
 <script>
+    const pageUL = $(".pagination");
+    const pageForm = $("#pageForm");
+
     function addButtonEvent() {
         $(".btn-write").on("click", function (e) {
-           e.preventDefault();
-           window.location.href = '/board/write';
+            e.preventDefault();
+            let pageNum = $("input[name='pageNum']").val();
+            window.location.href = '/board/write?pageNum=' + pageNum;
+        });
+
+        pageUL.on("click", "a", function (e) {
+            e.preventDefault();
+            let pageNum = $(this).attr('href');
+            $("input[name='pageNum']").val(pageNum);
+            pageForm.attr('action', '/board');
+            pageForm.submit();
         });
     }
 

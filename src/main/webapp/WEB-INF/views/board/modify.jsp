@@ -63,7 +63,12 @@
   </form>
 </div>
 </body>
+<form id="pageForm">
+  <input type="hidden" name="pageNum" value="${pagination.pageNum}">
+</form>
 <script>
+
+  const pageForm = $("#pageForm");
 
   let fileList = [];
   let deletedFileIds = [];
@@ -144,7 +149,8 @@
       success: function (response) {
         if (response.success) {
           alert(response.message);
-          window.location.href = `/board/${board.id}`;
+          pageForm.attr('action', `/board/${board.id}`);
+          pageForm.submit();
         }
       },
       error: function (xhr, status, error) {

@@ -32,7 +32,7 @@
         FROM board
         WHERE del_yn = 'N'
         ORDER BY id DESC
-        LIMIT 10
+        LIMIT #{skip}, #{amount}
     </select>
 
     <insert id="write" keyProperty="id" useGeneratedKeys="true">
@@ -95,4 +95,8 @@
         del_yn = 'Y'
         WHERE id = #{id}
     </update>
+
+    <select id="getTotal" resultType="int">
+        SELECT COUNT(*) FROM board WHERE del_yn = 'N'
+    </select>
 </mapper>

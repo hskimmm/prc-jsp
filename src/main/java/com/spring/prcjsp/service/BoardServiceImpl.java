@@ -8,6 +8,7 @@ import com.spring.prcjsp.mapper.BoardMapper;
 import com.spring.prcjsp.mapper.FileMapper;
 import com.spring.prcjsp.response.ApiResponse;
 import com.spring.prcjsp.util.FileUploadHandler;
+import com.spring.prcjsp.util.Pagination;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataAccessException;
@@ -29,9 +30,9 @@ public class BoardServiceImpl implements BoardService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<Board> getBoards() {
+    public List<Board> getBoards(Pagination pagination) {
         try {
-            return boardMapper.getBoards();
+            return boardMapper.getBoards(pagination);
         } catch (DataAccessException e) {
             log.error("게시판 조회(데이터베이스 오류) = {}", e.getMessage());
             throw new RuntimeException("게시판 조회 중 오류가 발생하였습니다");
@@ -135,5 +136,11 @@ public class BoardServiceImpl implements BoardService{
             log.error("게시글 삭제(기타 오류) = {}", e.getMessage());
             throw new RuntimeException("게시글 삭제 중 오류가 발생하였습니다");
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public int getTotal(Pagination pagination) {
+        return boardMapper.getTotal(pagination);
     }
 }

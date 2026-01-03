@@ -58,6 +58,9 @@
   </form>
 </div>
 </body>
+<form id="pageForm">
+  <input type="hidden" name="pageNum" value="${pagination.pageNum}">
+</form>
 <script>
 
   let fileList = [];
@@ -65,7 +68,8 @@
   function addButtonEvent() {
     $(".btn-cancel").on("click", function (e) {
       e.preventDefault();
-      window.location.href = '/board';
+      let pageNum = $("input[name='pageNum']").val();
+      window.location.href = '/board?pageNum=' + pageNum;
     });
 
     $(".btn-create").on("click", function (e) {

@@ -42,7 +42,7 @@
         <div class="post-footer">
             <div class="btn-group">
                 <a href="#" class="btn btn-secondary btn-cancel">목록</a>
-                <a href="/board/modify/${board.id}" class="btn btn-success">수정</a>
+                <a href="/board/modify/${board.id}?pageNum=${pagination.pageNum}" class="btn btn-success">수정</a>
                 <button type="button" class="btn btn-danger btn-delete">삭제</button>
             </div>
         </div>
@@ -134,11 +134,18 @@
     </div>
 </div>
 </body>
+<form id="pageForm">
+    <input type="hidden" name="pageNum" value="${pagination.pageNum}"/>
+</form>
 <script>
+
+    const pageForm = $("#pageForm");
+
     function addButtonEvent() {
         $(".btn-cancel").on("click", function (e) {
            e.preventDefault();
-           window.location.href = '/board';
+           let pageNum = $("input[name='pageNum']").val();
+           window.location.href = '/board?pageNum=' + pageNum;
         });
 
         $(".btn-delete").on("click", function (e) {
@@ -156,7 +163,8 @@
             success: function (response) {
                 if (response.success) {
                     alert(response.message);
-                    window.location.href = '/board';
+                    pageForm.attr('action', '/board');
+                    pageForm.submit();
                 }
             },
             error: function (xhr, status, error) {

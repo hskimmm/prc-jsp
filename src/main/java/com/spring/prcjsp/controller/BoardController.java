@@ -2,9 +2,11 @@ package com.spring.prcjsp.controller;
 
 import com.spring.prcjsp.domain.Board;
 import com.spring.prcjsp.dto.ModifyBoardDTO;
+import com.spring.prcjsp.dto.PageDTO;
 import com.spring.prcjsp.dto.WriteBoardDTO;
 import com.spring.prcjsp.response.ApiResponse;
 import com.spring.prcjsp.service.BoardService;
+import com.spring.prcjsp.util.Pagination;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -25,21 +27,25 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping
-    public String list(Model model) {
-        List<Board> boardList = boardService.getBoards();
+    public String list(@ModelAttribute(value = "pagination") Pagination pagination, Model model) {
+        List<Board> boardList = boardService.getBoards(pagination);
+        PageDTO pageDTO = new PageDTO(pagination, boardService.getTotal(pagination));
         model.addAttribute("boardList", boardList);
+        model.addAttribute("page", pageDTO);
         return "board/list";
     }
 
     @GetMapping("/{id}")
-    public String read(@PathVariable(value = "id") Long id, Model model) {
+    public String read(@PathVariable(value = "id") Long id,
+                       @ModelAttribute(value = "pagination") Pagination pagination,
+                       Model model) {
         Board board = boardService.getBoard(id);
         model.addAttribute("board", board);
         return "board/read";
     }
 
     @GetMapping("/write")
-    public String writeForm() {
+    public String writeForm(@ModelAttribute(value = "pagination") Pagination pagination) {
         return "board/write";
     }
 
@@ -50,7 +56,9 @@ public class BoardController {
     }
 
     @GetMapping("/modify/{id}")
-    public String modifyForm(@PathVariable(value = "id") Long id, Model model) {
+    public String modifyForm(@PathVariable(value = "id") Long id,
+                             @ModelAttribute(value = "pagination") Pagination pagination,
+                             Model model) {
         Board board = boardService.getBoard(id);
         model.addAttribute("board", board);
         return "board/modify";
