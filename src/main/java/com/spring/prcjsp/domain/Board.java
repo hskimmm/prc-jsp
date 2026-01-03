@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -15,11 +16,12 @@ public class Board {
     private Long id;
     private String title;
     private String content;
-    private String board_type;
+    private String boardType;
     private Integer viewCount;
     private String isTop;
     private String regUserName;
     private LocalDateTime regDate;
     private LocalDateTime modDate;
     private String delYn;
+    private List<File> fileList;
 }
