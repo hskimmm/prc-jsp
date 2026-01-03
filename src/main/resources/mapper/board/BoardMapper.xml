@@ -89,4 +89,10 @@
         content = #{content}
         WHERE id = #{id}
     </update>
+
+    <update id="delete">
+        UPDATE board SET
+        del_yn = 'Y'
+        WHERE id = #{id}
+    </update>
 </mapper>

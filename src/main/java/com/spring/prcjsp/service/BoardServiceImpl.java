@@ -1,6 +1,7 @@
 package com.spring.prcjsp.service;
 
 import com.spring.prcjsp.domain.Board;
+import com.spring.prcjsp.domain.File;
 import com.spring.prcjsp.dto.ModifyBoardDTO;
 import com.spring.prcjsp.dto.WriteBoardDTO;
 import com.spring.prcjsp.mapper.BoardMapper;
@@ -111,6 +112,28 @@ public class BoardServiceImpl implements BoardService{
         } catch (Exception e) {
             log.error("게시글 수정(기타 오류) = {}", e.getMessage());
             throw new RuntimeException("게시글 수정 중 오류가 발생하였습니다");
+        }
+    }
+
+    @Transactional
+    @Override
+    public ApiResponse<?> delete(Long id) {
+        try {
+            List<File> fileList = fileMapper.getFileList(id);
+            if (fileList != null && !fileList.isEmpty()) {
+                for (File file : fileList) {
+                    fileUploadHandler.deleteFile(file);
+                }
+            }
+
+            boardMapper.delete(id);
+            return new ApiResponse<>(true, "게시글을 삭제하였습니다");
+        } catch (DataAccessException e) {
+            log.error("게시글 삭제(데이터베이스 오류) = {}", e.getMessage());
+            throw new RuntimeException("게시글 삭제 중 데이터베이스 오류가 발생하였습니다");
+        } catch (Exception e) {
+            log.error("게시글 삭제(기타 오류) = {}", e.getMessage());
+            throw new RuntimeException("게시글 삭제 중 오류가 발생하였습니다");
         }
     }
 }

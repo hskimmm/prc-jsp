@@ -33,4 +33,8 @@
     <delete id="deleteFile">
         DELETE FROM file WHERE id = #{fileId}
     </delete>
+
+    <select id="getFileList" resultType="file">
+        SELECT * FROM file WHERE ref_id = #{id}
+    </select>
 </mapper>

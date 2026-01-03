@@ -63,4 +63,10 @@ public class BoardController {
         ApiResponse<?> response = boardService.modify(modifyBoardDTO, files, deletedFileIds);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> delete(@PathVariable(value = "id") Long id) {
+        ApiResponse<?> response = boardService.delete(id);
+        return ResponseEntity.ok(response);
+    }
 }

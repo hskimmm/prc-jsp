@@ -17,4 +17,6 @@ public interface BoardService {
     Board getBoard(Long id);
 
     ApiResponse<?> modify(@Valid ModifyBoardDTO modifyBoardDTO, List<MultipartFile> files, String[] deletedFileIds);
+
+    ApiResponse<?> delete(Long id);
 }

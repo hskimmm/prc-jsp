@@ -135,12 +135,44 @@
 </div>
 </body>
 <script>
-
     function addButtonEvent() {
         $(".btn-cancel").on("click", function (e) {
            e.preventDefault();
            window.location.href = '/board';
         });
+
+        $(".btn-delete").on("click", function (e) {
+           e.preventDefault();
+           if (confirm("게시글을 삭제하시겠습니까?")) {
+               deleteBoard();
+           }
+        });
+    }
+
+    function deleteBoard() {
+        $.ajax({
+            url: `/board/${board.id}`,
+            method: 'delete',
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    window.location.href = '/board';
+                }
+            },
+            error: function (xhr, status, error) {
+                let response;
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    alert("응답 데이터 처리 중 오류가 발생하였습니다");
+                    return e;
+                }
+                const errorMessage = response.message;
+                if (xhr.status === 500) {
+                    alert(errorMessage);
+                }
+            }
+        })
     }
 
     $(function () {
