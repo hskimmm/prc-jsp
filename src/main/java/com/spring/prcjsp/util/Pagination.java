@@ -14,6 +14,8 @@ public class Pagination {
     private String typeStr;
     private String keyword;
 
+    private String searchType;
+
     public void setPageNum(int pageNum) {
         if (pageNum <= 0) {
             this.pageNum = 1;

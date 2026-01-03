@@ -60,6 +60,8 @@
 </body>
 <form id="pageForm">
   <input type="hidden" name="pageNum" value="${pagination.pageNum}">
+  <input type="hidden" name="searchType" value="${pagination.searchType}"/>
+  <input type="hidden" name="keyword" value="${pagination.keyword}"/>
 </form>
 <script>
 
@@ -69,7 +71,9 @@
     $(".btn-cancel").on("click", function (e) {
       e.preventDefault();
       let pageNum = $("input[name='pageNum']").val();
-      window.location.href = '/board?pageNum=' + pageNum;
+      let searchType = $("input[name='searchType']").val();
+      let keyword = $("input[name='keyword']").val();
+      window.location.href = '/board?pageNum=' + pageNum + '&searchType=' + searchType + '&keyword=' + keyword;
     });
 
     $(".btn-create").on("click", function (e) {

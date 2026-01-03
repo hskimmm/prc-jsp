@@ -23,8 +23,8 @@
             <option value="content">내용</option>
             <option value="writer">작성자</option>
         </select>
-        <input type="text" name="keyword" placeholder="검색어를 입력하세요">
-        <button type="button">검색</button>
+        <input type="text" name="keyword" value="${pagination.keyword}" placeholder="검색어를 입력하세요">
+        <button type="button" class="btn-search">검색</button>
     </div>
 
     <table>
@@ -41,7 +41,7 @@
         <c:forEach var="list" items="${boardList}">
         <tr>
             <td class="text-center">${list.id}</td>
-            <td><a href="<c:url value='/board/${list.id}?pageNum=${pagination.pageNum}'/>" class="post-title">${list.title}</a></td>
+            <td><a href="<c:url value='/board/${list.id}?pageNum=${pagination.pageNum}&searchType=${pagination.searchType}&keyword=${pagination.keyword}'/>" class="post-title">${list.title}</a></td>
             <td class="text-center">${list.regUserName}</td>
             <td class="text-center">${list.regDate.toString().substring(0, 16).replace('T', ' ')}</td>
             <td class="text-center">${list.viewCount}</td>
@@ -69,6 +69,8 @@
 </body>
 <form id="pageForm">
     <input type="hidden" name="pageNum" value="${page.pagination.pageNum}"/>
+    <input type="hidden" name="searchType" value="${pagination.searchType}"/>
+    <input type="hidden" name="keyword" value="${pagination.keyword}"/>
 </form>
 <script>
     const pageUL = $(".pagination");
@@ -78,7 +80,9 @@
         $(".btn-write").on("click", function (e) {
             e.preventDefault();
             let pageNum = $("input[name='pageNum']").val();
-            window.location.href = '/board/write?pageNum=' + pageNum;
+            let searchType = $("input[name='searchType']").val();
+            let keyword = $("input[name='keyword']").val();
+            window.location.href = '/board/write?pageNum=' + pageNum + '&searchType=' + searchType + '&keyword=' + keyword;
         });
 
         pageUL.on("click", "a", function (e) {
@@ -87,6 +91,19 @@
             $("input[name='pageNum']").val(pageNum);
             pageForm.attr('action', '/board');
             pageForm.submit();
+        });
+
+        $(".btn-search").on("click", function (e) {
+           e.preventDefault();
+           let searchTypeValue = $("select[name='searchType']").val();
+           let keywordValue = $("input[name='keyword']").val();
+
+           $("input[name='pageNum']").val(1);
+           $("input[name='searchType']").val(searchTypeValue);
+           $("input[name='keyword']").val(keywordValue);
+
+           pageForm.attr('action', '/board');
+           pageForm.submit();
         });
     }
 

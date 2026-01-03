@@ -42,7 +42,7 @@
         <div class="post-footer">
             <div class="btn-group">
                 <a href="#" class="btn btn-secondary btn-cancel">목록</a>
-                <a href="/board/modify/${board.id}?pageNum=${pagination.pageNum}" class="btn btn-success">수정</a>
+                <a href="/board/modify/${board.id}?pageNum=${pagination.pageNum}&searchType=${pagination.searchType}&keyword=${pagination.keyword}" class="btn btn-success">수정</a>
                 <button type="button" class="btn btn-danger btn-delete">삭제</button>
             </div>
         </div>
@@ -136,6 +136,8 @@
 </body>
 <form id="pageForm">
     <input type="hidden" name="pageNum" value="${pagination.pageNum}"/>
+    <input type="hidden" name="searchType" value="${pagination.searchType}"/>
+    <input type="hidden" name="keyword" value="${pagination.keyword}"/>
 </form>
 <script>
 
@@ -145,7 +147,9 @@
         $(".btn-cancel").on("click", function (e) {
            e.preventDefault();
            let pageNum = $("input[name='pageNum']").val();
-           window.location.href = '/board?pageNum=' + pageNum;
+           let searchType = $("input[name='searchType']").val();
+           let keyword = $("input[name='keyword']").val();
+           window.location.href = '/board?pageNum=' + pageNum + '&searchType=' + searchType + '&keyword=' + keyword;
         });
 
         $(".btn-delete").on("click", function (e) {

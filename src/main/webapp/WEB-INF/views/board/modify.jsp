@@ -65,6 +65,8 @@
 </body>
 <form id="pageForm">
   <input type="hidden" name="pageNum" value="${pagination.pageNum}">
+  <input type="hidden" name="searchType" value="${pagination.searchType}"/>
+  <input type="hidden" name="keyword" value="${pagination.keyword}"/>
 </form>
 <script>
 

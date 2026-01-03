@@ -26,11 +26,27 @@
         </collection>
     </resultMap>
 
+    <sql id="search">
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    AND title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'content'">
+                    AND content LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'writer'">
+                    AND reg_user_name LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+            </choose>
+        </if>
+    </sql>
 
     <select id="getBoards" resultType="board">
         SELECT *
         FROM board
         WHERE del_yn = 'N'
+        <include refid="search"/>
         ORDER BY id DESC
         LIMIT #{skip}, #{amount}
     </select>
@@ -97,6 +113,6 @@
     </update>
 
     <select id="getTotal" resultType="int">
-        SELECT COUNT(*) FROM board WHERE del_yn = 'N'
+        SELECT COUNT(*) FROM board WHERE del_yn = 'N' <include refid="search"/>
     </select>
 </mapper>
