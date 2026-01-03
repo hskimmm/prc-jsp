@@ -12,4 +12,6 @@ public interface BoardService {
     List<Board> getBoards();
 
     ApiResponse<?> write(@Valid WriteBoardDTO writeBoardDTO, List<MultipartFile> files);
+
+    Board getBoard(Long id);
 }

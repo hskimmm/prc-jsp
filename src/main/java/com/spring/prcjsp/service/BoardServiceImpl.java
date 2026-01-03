@@ -27,7 +27,7 @@ public class BoardServiceImpl implements BoardService{
     @Override
     public List<Board> getBoards() {
         try {
-            return boardMapper.getBoard();
+            return boardMapper.getBoards();
         } catch (DataAccessException e) {
             log.error("게시판 조회(데이터베이스 오류) = {}", e.getMessage());
             throw new RuntimeException("게시판 조회 중 오류가 발생하였습니다");
@@ -66,5 +66,11 @@ public class BoardServiceImpl implements BoardService{
             log.error("게시글 등록(기타 오류) = {}", e.getMessage());
             throw new RuntimeException("게시글 등록 중 오류가 발생하였습니다");
         }
+    }
+
+    @Override
+    public Board getBoard(Long id) {
+        boardMapper.incrementViewCount(id);
+        return boardMapper.getBoard(id);
     }
 }

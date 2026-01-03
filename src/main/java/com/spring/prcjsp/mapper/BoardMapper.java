@@ -7,7 +7,11 @@ import java.util.List;
 
 @Mapper
 public interface BoardMapper {
-    List<Board> getBoard();
+    List<Board> getBoards();
 
     void write(Board board);
+
+    Board getBoard(Long id);
+
+    void incrementViewCount(Long id);
 }
