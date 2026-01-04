@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.prcjsp.mapper.FileMapper">
+    <insert id="insertFile">
+        INSERT INTO file
+        (
+            ref_type,
+            ref_id,
+            file_type,
+            original_name,
+            saved_name,
+            file_path,
+            file_size,
+            file_ext,
+            download_count,
+            display_order
+        ) VALUES (
+            #{refType},
+            #{refId},
+            #{fileType},
+            #{originalName},
+            #{savedName},
+            #{filePath},
+            #{fileSize},
+            #{fileExt},
+            #{downloadCount},
+            #{displayOrder}
+        )
+    </insert>
+
+    <delete id="deleteFile">
+        DELETE FROM file WHERE id = #{fileId}
+    </delete>
+
+    <select id="getFileList" resultType="file">
+        SELECT * FROM file WHERE ref_id = #{id}
+    </select>
+</mapper>
