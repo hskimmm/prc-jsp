@@ -7,6 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <html>
 <head>
     <title>목록</title>
@@ -16,15 +17,14 @@
 <body>
 <div class="container" id="list-page">
     <h1>게시판</h1>
-
     <div class="search-box">
         <select name="searchType">
             <option value="title">제목</option>
             <option value="content">내용</option>
             <option value="writer">작성자</option>
         </select>
-        <input type="text" name="keyword" placeholder="검색어를 입력하세요">
-        <button type="button">검색</button>
+        <input type="text" name="keyword" value="${pagination.keyword}" placeholder="검색어를 입력하세요">
+        <button type="button" class="btn-search">검색</button>
     </div>
 
     <table>
@@ -38,38 +38,28 @@
         </tr>
         </thead>
         <tbody>
+        <c:forEach var="list" items="${boardList}">
         <tr>
-            <td class="text-center">5</td>
-            <td><a href="" class="post-title">게시글 제목입니다</a></td>
-            <td class="text-center">홍길동</td>
-            <td class="text-center">2024-01-15</td>
-            <td class="text-center">123</td>
+            <td class="text-center">${list.id}</td>
+            <td><a href="<c:url value='/board/${list.id}?pageNum=${pagination.pageNum}&searchType=${pagination.searchType}&keyword=${pagination.keyword}'/>" class="post-title">${list.title}</a></td>
+            <td class="text-center">${list.regUserName}</td>
+            <td class="text-center">${list.regDate.toString().substring(0, 16).replace('T', ' ')}</td>
+            <td class="text-center">${list.viewCount}</td>
         </tr>
-        <tr>
-            <td class="text-center">4</td>
-            <td><a href="#" class="post-title">두 번째 게시글입니다</a></td>
-            <td class="text-center">김철수</td>
-            <td class="text-center">2024-01-14</td>
-            <td class="text-center">87</td>
-        </tr>
-        <tr>
-            <td class="text-center">3</td>
-            <td><a href="#" class="post-title">세 번째 게시글입니다</a></td>
-            <td class="text-center">이영희</td>
-            <td class="text-center">2024-01-13</td>
-            <td class="text-center">56</td>
-        </tr>
+        </c:forEach>
         </tbody>
     </table>
 
     <div class="pagination">
-        <a href="#">&laquo;</a>
-        <a href="#">1</a>
-        <span class="active">2</span>
-        <a href="#">3</a>
-        <a href="#">4</a>
-        <a href="#">5</a>
-        <a href="#">&raquo;</a>
+        <c:if test="${page.prev}">
+        <a href="${page.startPage - 1}">&laquo;</a>
+        </c:if>
+        <c:forEach var="num" begin="${page.startPage}" end="${page.endPage}">
+            <a href="${num}" class="${page.pagination.pageNum == num ? 'active' : ''}">${num}</a>
+        </c:forEach>
+        <c:if test="${page.next}">
+        <a href="${page.endPage + 1}">&raquo;</a>
+        </c:if>
     </div>
 
     <div class="btn-group">
@@ -77,12 +67,43 @@
     </div>
 </div>
 </body>
+<form id="pageForm">
+    <input type="hidden" name="pageNum" value="${page.pagination.pageNum}"/>
+    <input type="hidden" name="searchType" value="${pagination.searchType}"/>
+    <input type="hidden" name="keyword" value="${pagination.keyword}"/>
+</form>
 <script>
+    const pageUL = $(".pagination");
+    const pageForm = $("#pageForm");
 
     function addButtonEvent() {
         $(".btn-write").on("click", function (e) {
+            e.preventDefault();
+            let pageNum = $("input[name='pageNum']").val();
+            let searchType = $("input[name='searchType']").val();
+            let keyword = $("input[name='keyword']").val();
+            window.location.href = '/board/write?pageNum=' + pageNum + '&searchType=' + searchType + '&keyword=' + keyword;
+        });
+
+        pageUL.on("click", "a", function (e) {
+            e.preventDefault();
+            let pageNum = $(this).attr('href');
+            $("input[name='pageNum']").val(pageNum);
+            pageForm.attr('action', '/board');
+            pageForm.submit();
+        });
+
+        $(".btn-search").on("click", function (e) {
            e.preventDefault();
-           window.location.href = '/board/write';
+           let searchTypeValue = $("select[name='searchType']").val();
+           let keywordValue = $("input[name='keyword']").val();
+
+           $("input[name='pageNum']").val(1);
+           $("input[name='searchType']").val(searchTypeValue);
+           $("input[name='keyword']").val(keywordValue);
+
+           pageForm.attr('action', '/board');
+           pageForm.submit();
         });
     }
 

@@ -14,41 +14,36 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-<div class="container" id="detail-page" style="display: none;">
+<div class="container" id="detail-page">
     <h1>게시글 상세보기</h1>
-
     <div class="post-detail">
         <div class="post-header">
-            <h2>게시글 제목이 여기에 표시됩니다</h2>
+            <h2>${board.title}</h2>
             <div class="post-meta">
-                <span>작성자: 홍길동</span>
-                <span>작성일: 2024-01-15</span>
-                <span>조회수: 123</span>
+                <span>작성자: ${board.regUserName}</span>
+                <span>작성일: ${board.regDate.toString().substring(0, 16).replace('T', ' ')}</span>
+                <span>조회수: ${board.viewCount}</span>
             </div>
         </div>
 
         <!-- 첨부파일 -->
         <div class="attached-files">
             <h4>📎 첨부파일</h4>
-            <a href="#" class="file-download">
-                <span class="file-icon">📄</span>
-                문서파일.pdf
-            </a>
-            <a href="#" class="file-download">
-                <span class="file-icon">🖼️</span>
-                이미지.jpg
-            </a>
+            <c:forEach var="file" items="${board.fileList}">
+                <a href="#" class="file-download">
+                    <span class="file-icon">📄</span>
+                    ${file.originalName}
+                </a>
+            </c:forEach>
         </div>
 
-        <div class="post-content">
-            게시글 내용이 여기에 표시됩니다.
-        </div>
+        <div class="post-content">${board.content}</div>
 
         <div class="post-footer">
             <div class="btn-group">
-                <a href="#" class="btn btn-secondary">목록</a>
-                <a href="#" class="btn btn-success">수정</a>
-                <button type="button" class="btn btn-danger">삭제</button>
+                <a href="#" class="btn btn-secondary btn-cancel">목록</a>
+                <a href="/board/modify/${board.id}?pageNum=${pagination.pageNum}&searchType=${pagination.searchType}&keyword=${pagination.keyword}" class="btn btn-success">수정</a>
+                <button type="button" class="btn btn-danger btn-delete">삭제</button>
             </div>
         </div>
     </div>
@@ -139,4 +134,61 @@
     </div>
 </div>
 </body>
+<form id="pageForm">
+    <input type="hidden" name="pageNum" value="${pagination.pageNum}"/>
+    <input type="hidden" name="searchType" value="${pagination.searchType}"/>
+    <input type="hidden" name="keyword" value="${pagination.keyword}"/>
+</form>
+<script>
+
+    const pageForm = $("#pageForm");
+
+    function addButtonEvent() {
+        $(".btn-cancel").on("click", function (e) {
+           e.preventDefault();
+           let pageNum = $("input[name='pageNum']").val();
+           let searchType = $("input[name='searchType']").val();
+           let keyword = $("input[name='keyword']").val();
+           window.location.href = '/board?pageNum=' + pageNum + '&searchType=' + searchType + '&keyword=' + keyword;
+        });
+
+        $(".btn-delete").on("click", function (e) {
+           e.preventDefault();
+           if (confirm("게시글을 삭제하시겠습니까?")) {
+               deleteBoard();
+           }
+        });
+    }
+
+    function deleteBoard() {
+        $.ajax({
+            url: `/board/${board.id}`,
+            method: 'delete',
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    pageForm.attr('action', '/board');
+                    pageForm.submit();
+                }
+            },
+            error: function (xhr, status, error) {
+                let response;
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    alert("응답 데이터 처리 중 오류가 발생하였습니다");
+                    return e;
+                }
+                const errorMessage = response.message;
+                if (xhr.status === 500) {
+                    alert(errorMessage);
+                }
+            }
+        })
+    }
+
+    $(function () {
+       addButtonEvent();
+    });
+</script>
 </html>

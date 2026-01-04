@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.prcjsp.mapper.BoardMapper">
+    <resultMap id="boardDetailMap" type="com.spring.prcjsp.domain.Board">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="boardType" column="board_type"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="isTop" column="is_top"/>
+        <result property="regUserName" column="reg_user_name"/>
+        <result property="regDate" column="reg_date"/>
+        <result property="modDate" column="mod_date"/>
+        <result property="delYn" column="del_yn"/>
+        
+        <collection property="fileList" ofType="com.spring.prcjsp.domain.File">
+            <id property="id" column="file_id"/>
+            <result property="fileType" column="file_type"/>
+            <result property="originalName" column="original_name"/>
+            <result property="savedName" column="saved_name"/>
+            <result property="filePath" column="file_path"/>
+            <result property="fileSize" column="file_size"/>
+            <result property="fileExt" column="file_ext"/>
+        </collection>
+    </resultMap>
+
+    <sql id="search">
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    AND title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'content'">
+                    AND content LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'writer'">
+                    AND reg_user_name LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <select id="getBoards" resultType="board">
+        SELECT *
+        FROM board
+        WHERE del_yn = 'N'
+        <include refid="search"/>
+        ORDER BY id DESC
+        LIMIT #{skip}, #{amount}
+    </select>
+
+    <insert id="write" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO board
+        (
+            title,
+            content,
+            board_type,
+            reg_user_name
+        )
+        VALUES
+        (
+            #{title},
+            #{content},
+            #{boardType},
+            #{regUserName}
+        )
+    </insert>
+
+    <select id="getBoard" resultMap="boardDetailMap">
+        SELECT
+            b.id,
+            b.title,
+            b.content,
+            b.board_type,
+            b.view_count,
+            b.is_top,
+            b.reg_user_name,
+            b.reg_date,
+            b.mod_date,
+            b.del_yn,
+            f.id AS file_id,
+            f.file_type,
+            f.original_name,
+            f.saved_name,
+            f.file_path,
+            f.file_size,
+            f.file_ext
+        FROM board b
+        LEFT OUTER JOIN file f
+        ON b.id = f.ref_id
+        WHERE b.id = #{id}
+    </select>
+
+    <update id="incrementViewCount">
+        UPDATE board SET
+        view_count = view_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="modify">
+        UPDATE board SET
+        title = #{title},
+        content = #{content}
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE board SET
+        del_yn = 'Y'
+        WHERE id = #{id}
+    </update>
+
+    <select id="getTotal" resultType="int">
+        SELECT COUNT(*) FROM board WHERE del_yn = 'N' <include refid="search"/>
+    </select>
+</mapper>
