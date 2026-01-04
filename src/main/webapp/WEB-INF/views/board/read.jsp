@@ -102,6 +102,46 @@
            e.preventDefault();
            createComment();
         });
+
+        $(".comment-list").on("click", ".comment-edit-btn", function (e) {
+            e.preventDefault();
+            const commentItem = $(this).closest('.comment-item');
+
+            if (commentItem.find('.edit-textarea').length > 0) {
+                return;
+            }
+
+            const commentId = commentItem.data('comment-id');
+            const currentContent = commentItem.find('.comment-content').text().trim();
+
+            //기존 내용 저장
+            commentItem.data('original-content', currentContent);
+
+            commentItem.find('.comment-content').html(`
+                <textarea class="edit-textarea" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; min-height: 80px; font-size: 14px; font-family: inherit; line-height: 1.6; resize: vertical;" id="editContent" name="editContent">\${currentContent}</textarea>
+                <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button class="btn btn-primary btn-comment-save" data-comment-id="\${commentId}" style="padding: 8px 16px; font-size: 14px;">저장</button>
+                    <button class="btn-cancel-edit" style="padding: 8px 16px; border: 1px solid #ddd; background: white; color: #7f8c8d; border-radius: 5px; cursor: pointer; font-size: 14px;">취소</button>
+                </div>
+            `);
+        });
+
+        $(".comment-list").on("click", ".btn-comment-save", function (e) {
+            e.preventDefault();
+
+            const commentItem = $(this).closest('.comment-item');
+            const commentId = $(this).data('comment-id');
+            const contentValue = commentItem.find("textarea[name='editContent']").val();
+            updateComment(commentId, contentValue);
+        });
+
+        $(".comment-list").on("click", ".btn-cancel-edit", function (e) {
+           e.preventDefault();
+           const commentItem = $(this).closest('.comment-item');
+           const originalContent = commentItem.data('original-content');
+
+           commentItem.find('.comment-content').html(originalContent);
+        });
     }
 
     //게시글 삭제
@@ -227,6 +267,55 @@
                const errorMessage = response.message;
                if (xhr.status === 404) {
                    alert(errorMessage);
+               } else if (xhr.status === 500) {
+                   alert(errorMessage);
+               }
+           }
+        });
+    }
+
+    //댓글 수정
+    function updateComment(commentId, contentValue) {
+        if (!contentValue) {
+            alert("댓글 내용을 입력하세요");
+            $("#editContent").focus();
+            return;
+        }
+
+        const data = {
+            id: commentId,
+            content: contentValue
+        }
+
+        $.ajax({
+           url: '/comment',
+           method: 'PUT',
+           data: JSON.stringify(data),
+           contentType: 'application/json',
+           success: function (response) {
+               if (response.success) {
+                   alert(response.message);
+                   loadCommentList();
+               }
+           },
+           error: function (xhr, status, error) {
+               let response;
+               try {
+                   response = JSON.parse(xhr.responseText);
+               } catch (e) {
+                   alert("응답 데이터 처리 중 오류가 발생하였습니다");
+                   return e;
+               }
+               const errorMessage = response.message;
+               if (xhr.status === 400) {
+                   let errors = response.items;
+                   if (errors['id']) {
+                       alert(errors['id']);
+                       return false;
+                   } else if (errors['content']) {
+                       alert(errors['content']);
+                       return false;
+                   }
                } else if (xhr.status === 500) {
                    alert(errorMessage);
                }

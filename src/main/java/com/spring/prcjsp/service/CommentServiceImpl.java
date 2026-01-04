@@ -2,6 +2,7 @@ package com.spring.prcjsp.service;
 
 import com.spring.prcjsp.domain.Comment;
 import com.spring.prcjsp.dto.CreateCommentDTO;
+import com.spring.prcjsp.dto.UpdateCommentDTO;
 import com.spring.prcjsp.exception.BoardIdNotFoundException;
 import com.spring.prcjsp.mapper.CommentMapper;
 import com.spring.prcjsp.response.ApiResponse;
@@ -60,6 +61,26 @@ public class CommentServiceImpl implements CommentService{
         } catch (Exception e) {
             log.error("댓글 등록(기타 오류) = {}", e.getMessage());
             throw new RuntimeException("댓글 등록 중 오류가 발생하였습니다");
+        }
+    }
+
+    @Transactional
+    @Override
+    public ApiResponse<?> updateComment(UpdateCommentDTO updateCommentDTO) {
+        try {
+            Comment comment = Comment.builder()
+                    .id(updateCommentDTO.getId())
+                    .content(updateCommentDTO.getContent())
+                    .build();
+            commentMapper.updateComment(comment);
+
+            return new ApiResponse<>(true, "댓글을 수정하였습니다");
+        } catch (DataAccessException e) {
+            log.error("댓글 수정(데이터베이스 오류) = {}", e.getMessage());
+            throw new RuntimeException("댓글 수정 중 데이터베이스 오류가 발생하였습니다");
+        } catch (Exception e) {
+            log.error("댓글 수정(기타 오류) = {}", e.getMessage());
+            throw new RuntimeException("댓글 수정 중 오류가 발생하였습니다");
         }
     }
 }

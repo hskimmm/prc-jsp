@@ -1,6 +1,7 @@
 package com.spring.prcjsp.controller;
 
 import com.spring.prcjsp.dto.CreateCommentDTO;
+import com.spring.prcjsp.dto.UpdateCommentDTO;
 import com.spring.prcjsp.response.ApiResponse;
 import com.spring.prcjsp.service.CommentService;
 import jakarta.validation.Valid;
@@ -26,6 +27,12 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<ApiResponse<?>> createComment(@Valid @RequestBody CreateCommentDTO createCommentDTO) {
         ApiResponse<?> response = commentService.createComment(createCommentDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping
+    public ResponseEntity<ApiResponse<?>> updateComment(@Valid @RequestBody UpdateCommentDTO updateCommentDTO) {
+        ApiResponse<?> response = commentService.updateComment(updateCommentDTO);
         return ResponseEntity.ok(response);
     }
 }
