@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.prcjsp.mapper.CommentMapper">
+    <select id="getComments" resultType="comment">
+        SELECT * FROM board_comment WHERE board_id = #{id} ORDER BY id DESC
+    </select>
+
+    <insert id="createComment">
+        INSERT INTO board_comment ( board_id, content, reg_user_name ) VALUES ( #{boardId}, #{content}, #{regUserName} )
+    </insert>
+
+    <update id="updateComment">
+        UPDATE board_comment SET
+        content = #{content}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteComment">
+        DELETE FROM board_comment WHERE id = #{id}
+    </delete>
+</mapper>

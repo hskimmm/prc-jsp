@@ -54,83 +54,17 @@
 
         <!-- 댓글 작성 -->
         <div class="comment-write">
-            <form method="post" action="">
-                <textarea name="comment" placeholder="댓글을 입력하세요" required></textarea>
+            <form id="commentWriteForm">
+                <textarea id="content" name="content" placeholder="댓글을 입력하세요" required></textarea>
                 <div class="comment-write-footer">
-                    <input type="text" name="commentWriter" placeholder="작성자" required>
-                    <button type="submit" class="btn btn-primary">댓글 등록</button>
+                    <input type="text" id="regUserName" name="regUserName" placeholder="작성자" required>
+                    <button type="button" class="btn btn-primary btn-comment-write">댓글 등록</button>
                 </div>
             </form>
         </div>
 
         <!-- 댓글 목록 -->
-        <div class="comment-list">
-            <div class="comment-item">
-                <div class="comment-header">
-                    <div>
-                        <span class="comment-author">김철수</span>
-                        <span class="comment-date">2024-01-15 10:30</span>
-                    </div>
-                    <div class="comment-actions">
-                        <button class="comment-edit-btn">수정</button>
-                        <button class="comment-delete-btn">삭제</button>
-                    </div>
-                </div>
-                <div class="comment-content">
-                    좋은 정보 감사합니다!
-                </div>
-            </div>
-
-            <div class="comment-item">
-                <div class="comment-header">
-                    <div>
-                        <span class="comment-author">이영희</span>
-                        <span class="comment-date">2024-01-15 11:20</span>
-                    </div>
-                    <div class="comment-actions">
-                        <button class="comment-edit-btn">수정</button>
-                        <button class="comment-delete-btn">삭제</button>
-                    </div>
-                </div>
-                <div class="comment-content">
-                    도움이 많이 되었습니다.
-                </div>
-            </div>
-
-            <div class="comment-item">
-                <div class="comment-header">
-                    <div>
-                        <span class="comment-author">박민수</span>
-                        <span class="comment-date">2024-01-15 14:15</span>
-                    </div>
-                    <div class="comment-actions">
-                        <button class="comment-edit-btn">수정</button>
-                        <button class="comment-delete-btn">삭제</button>
-                    </div>
-                </div>
-                <div class="comment-content">
-                    추가 질문이 있는데, 이 부분은 어떻게 처리하면 될까요?
-                </div>
-
-                <div class="comment-reply">
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <div>
-                                <span class="comment-author">홍길동</span>
-                                <span class="comment-date">2024-01-15 15:00</span>
-                            </div>
-                            <div class="comment-actions">
-                                <button class="comment-edit-btn">수정</button>
-                                <button class="comment-delete-btn">삭제</button>
-                            </div>
-                        </div>
-                        <div class="comment-content">
-                            ↳ 그 부분은 다음과 같이 처리하시면 됩니다.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="comment-list"></div>
     </div>
 </div>
 </body>
@@ -142,6 +76,11 @@
 <script>
 
     const pageForm = $("#pageForm");
+
+    const boardIdValue = ${board.id};
+
+    const formatDate = d =>
+        new Date(d).toISOString().slice(0,16).replace('T',' ');
 
     function addButtonEvent() {
         $(".btn-cancel").on("click", function (e) {
@@ -158,8 +97,61 @@
                deleteBoard();
            }
         });
+
+        $(".btn-comment-write").on("click", function (e) {
+           e.preventDefault();
+           createComment();
+        });
+
+        $(".comment-list").on("click", ".comment-edit-btn", function (e) {
+            e.preventDefault();
+            const commentItem = $(this).closest('.comment-item');
+
+            if (commentItem.find('.edit-textarea').length > 0) {
+                return;
+            }
+
+            const commentId = commentItem.data('comment-id');
+            const currentContent = commentItem.find('.comment-content').text().trim();
+
+            //기존 내용 저장
+            commentItem.data('original-content', currentContent);
+
+            commentItem.find('.comment-content').html(`
+                <textarea class="edit-textarea" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; min-height: 80px; font-size: 14px; font-family: inherit; line-height: 1.6; resize: vertical;" id="editContent" name="editContent">\${currentContent}</textarea>
+                <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button class="btn btn-primary btn-comment-save" data-comment-id="\${commentId}" style="padding: 8px 16px; font-size: 14px;">저장</button>
+                    <button class="btn-cancel-edit" style="padding: 8px 16px; border: 1px solid #ddd; background: white; color: #7f8c8d; border-radius: 5px; cursor: pointer; font-size: 14px;">취소</button>
+                </div>
+            `);
+        });
+
+        $(".comment-list").on("click", ".btn-comment-save", function (e) {
+            e.preventDefault();
+
+            const commentItem = $(this).closest('.comment-item');
+            const commentId = $(this).data('comment-id');
+            const contentValue = commentItem.find("textarea[name='editContent']").val();
+            updateComment(commentId, contentValue);
+        });
+
+        $(".comment-list").on("click", ".btn-cancel-edit", function (e) {
+           e.preventDefault();
+           const commentItem = $(this).closest('.comment-item');
+           const originalContent = commentItem.data('original-content');
+
+           commentItem.find('.comment-content').html(originalContent);
+        });
+
+        $(".comment-list").on("click", ".comment-delete-btn", function (e) {
+           e.preventDefault();
+           const commentItem = $(this).closest('.comment-item');
+           const commentId = commentItem.data('comment-id');
+           deleteComment(commentId);
+        });
     }
 
+    //게시글 삭제
     function deleteBoard() {
         $.ajax({
             url: `/board/${board.id}`,
@@ -187,8 +179,195 @@
         })
     }
 
+    //댓글 데이터 불러오기
+    function loadCommentList() {
+        $.ajax({
+           url: `/comment/${board.id}`,
+           method: 'get',
+           success: function (response) {
+               if (response.success) {
+                   loadCommentHTML(response.data);
+               }
+           },
+           error: function (xhr, status, error) {
+               let response;
+               try {
+                   response = JSON.parse(xhr.responseText);
+               } catch (e) {
+                   alert("응답 데이터 처리 중 오류가 발생하였습니다");
+                   return e;
+               }
+               const errorMessage = response.message;
+               if (xhr.status === 404) {
+                   alert(errorMessage);
+               } else if (xhr.status === 500) {
+                   alert(errorMessage);
+               }
+           }
+        });
+    }
+
+    //댓글 HTML VIEW
+    function loadCommentHTML(data) {
+        let str = '';
+        $.each(data, function (i, value) {
+            str += `<div class="comment-item" data-comment-id=\${value.id}>
+                        <div class="comment-header">
+                            <div>
+                                <span class="comment-author">\${value.regUserName}</span>
+                                <span class="comment-date">\${formatDate(value.regDate)}</span>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="comment-edit-btn">수정</button>
+                                <button class="comment-delete-btn">삭제</button>
+                            </div>
+                        </div>
+                        <div class="comment-content">\${value.content}</div>
+                    </div>`;
+        });
+        $(".comment-list").html(str);
+    }
+
+    //댓글 등록
+    function createComment() {
+        let contentValue = $("textarea[name='content']").val();
+        let regUserNameValue = $("input[name='regUserName']").val();
+
+        if (!contentValue) {
+            alert("댓글 내용을 입력하세요");
+            $("#content").focus();
+            return;
+        }
+
+        if (!regUserNameValue) {
+            alert("댓글 작성자를 입력하세요");
+            $("#regUserName").focus();
+            return;
+        }
+
+        const data = {
+            boardId: boardIdValue,
+            content: contentValue,
+            regUserName: regUserNameValue
+        }
+
+        $.ajax({
+           url: '/comment',
+           method: 'POST',
+           data: JSON.stringify(data),
+           contentType: 'application/json',
+           success: function (response) {
+               if (response.success) {
+                   alert(response.message);
+                   $("textarea[name='content']").val('');
+                   $("input[name='regUserName']").val('');
+                   loadCommentList();
+               }
+           },
+           error: function (xhr, status, error) {
+               let response;
+               try {
+                   response = JSON.parse(xhr.responseText);
+               } catch (e) {
+                   alert("응답 데이터 처리 중 오류가 발생하였습니다");
+               }
+               const errorMessage = response.message;
+               if (xhr.status === 404) {
+                   alert(errorMessage);
+               } else if (xhr.status === 500) {
+                   alert(errorMessage);
+               }
+           }
+        });
+    }
+
+    //댓글 수정
+    function updateComment(commentId, contentValue) {
+        if (!contentValue) {
+            alert("댓글 내용을 입력하세요");
+            $("#editContent").focus();
+            return;
+        }
+
+        const data = {
+            id: commentId,
+            content: contentValue
+        }
+
+        $.ajax({
+           url: '/comment',
+           method: 'PUT',
+           data: JSON.stringify(data),
+           contentType: 'application/json',
+           success: function (response) {
+               if (response.success) {
+                   alert(response.message);
+                   loadCommentList();
+               }
+           },
+           error: function (xhr, status, error) {
+               let response;
+               try {
+                   response = JSON.parse(xhr.responseText);
+               } catch (e) {
+                   alert("응답 데이터 처리 중 오류가 발생하였습니다");
+                   return e;
+               }
+               const errorMessage = response.message;
+               if (xhr.status === 400) {
+                   let errors = response.items;
+                   if (errors['id']) {
+                       alert(errors['id']);
+                       return false;
+                   } else if (errors['content']) {
+                       alert(errors['content']);
+                       return false;
+                   }
+               } else if (xhr.status === 500) {
+                   alert(errorMessage);
+               }
+           }
+        });
+    }
+
+    //댓글 삭제
+    function deleteComment(commentId) {
+        if (!confirm("댓글을 삭제하시겠습니까?")) {
+            return;
+        }
+
+        $.ajax({
+            url: '/comment/' + commentId,
+            method: 'DELETE',
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    loadCommentList();
+                }
+            },
+            error: function (xhr, status, error) {
+                let response;
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    alert("응답 데이터 처리 중 오류가 발생하였습니다");
+                    return e;
+                }
+                const errorMessage = response.message;
+                if (xhr.status === 404) {
+                    alert(errorMessage);
+                    return false;
+                } else if (xhr.status === 500) {
+                    alert(errorMessage);
+                    return false;
+                }
+            }
+        });
+    }
+
     $(function () {
        addButtonEvent();
+       loadCommentList();
     });
 </script>
 </html>

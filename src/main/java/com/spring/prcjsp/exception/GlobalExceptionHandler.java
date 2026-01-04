@@ -37,6 +37,22 @@ public class GlobalExceptionHandler {
     }
 
     @Order(2)
+    @ExceptionHandler(BoardIdNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleBoardIdNotFoundException(BoardIdNotFoundException e) {
+        log.info("GlobalExceptionHandler(handleBoardIdNotFoundException)");
+        ApiResponse<?> response = new ApiResponse<>(false, e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @Order(3)
+    @ExceptionHandler(CommentIdNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleCommentIdNotFoundException(CommentIdNotFoundException e) {
+        log.info("GlobalExceptionHandler(handleCommentIdNotFoundException)");
+        ApiResponse<?> response = new ApiResponse<>(false, e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @Order(4)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<?>> handleRuntimeException(RuntimeException e) {
         log.info("GlobalExceptionHandler(handleRuntimeException)");
@@ -44,7 +60,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    @Order(3)
+    @Order(5)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
         log.info("GlobalExceptionHandler(handleException)");
