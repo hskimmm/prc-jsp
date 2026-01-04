@@ -142,6 +142,13 @@
 
            commentItem.find('.comment-content').html(originalContent);
         });
+
+        $(".comment-list").on("click", ".comment-delete-btn", function (e) {
+           e.preventDefault();
+           const commentItem = $(this).closest('.comment-item');
+           const commentId = commentItem.data('comment-id');
+           deleteComment(commentId);
+        });
     }
 
     //게시글 삭제
@@ -320,6 +327,41 @@
                    alert(errorMessage);
                }
            }
+        });
+    }
+
+    //댓글 삭제
+    function deleteComment(commentId) {
+        if (!confirm("댓글을 삭제하시겠습니까?")) {
+            return;
+        }
+
+        $.ajax({
+            url: '/comment/' + commentId,
+            method: 'DELETE',
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    loadCommentList();
+                }
+            },
+            error: function (xhr, status, error) {
+                let response;
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    alert("응답 데이터 처리 중 오류가 발생하였습니다");
+                    return e;
+                }
+                const errorMessage = response.message;
+                if (xhr.status === 404) {
+                    alert(errorMessage);
+                    return false;
+                } else if (xhr.status === 500) {
+                    alert(errorMessage);
+                    return false;
+                }
+            }
         });
     }
 

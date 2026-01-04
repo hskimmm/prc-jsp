@@ -35,4 +35,10 @@ public class CommentController {
         ApiResponse<?> response = commentService.updateComment(updateCommentDTO);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> deleteComment(@PathVariable(value = "id") Long id) {
+        ApiResponse<?> response = commentService.deleteComment(id);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -11,4 +11,6 @@ public interface CommentService {
     ApiResponse<?> createComment(@Valid CreateCommentDTO createCommentDTO);
 
     ApiResponse<?> updateComment(@Valid UpdateCommentDTO updateCommentDTO);
+
+    ApiResponse<?> deleteComment(Long id);
 }
