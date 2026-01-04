@@ -64,73 +64,7 @@
         </div>
 
         <!-- 댓글 목록 -->
-        <div class="comment-list">
-            <div class="comment-item">
-                <div class="comment-header">
-                    <div>
-                        <span class="comment-author">김철수</span>
-                        <span class="comment-date">2024-01-15 10:30</span>
-                    </div>
-                    <div class="comment-actions">
-                        <button class="comment-edit-btn">수정</button>
-                        <button class="comment-delete-btn">삭제</button>
-                    </div>
-                </div>
-                <div class="comment-content">
-                    좋은 정보 감사합니다!
-                </div>
-            </div>
-
-            <div class="comment-item">
-                <div class="comment-header">
-                    <div>
-                        <span class="comment-author">이영희</span>
-                        <span class="comment-date">2024-01-15 11:20</span>
-                    </div>
-                    <div class="comment-actions">
-                        <button class="comment-edit-btn">수정</button>
-                        <button class="comment-delete-btn">삭제</button>
-                    </div>
-                </div>
-                <div class="comment-content">
-                    도움이 많이 되었습니다.
-                </div>
-            </div>
-
-            <div class="comment-item">
-                <div class="comment-header">
-                    <div>
-                        <span class="comment-author">박민수</span>
-                        <span class="comment-date">2024-01-15 14:15</span>
-                    </div>
-                    <div class="comment-actions">
-                        <button class="comment-edit-btn">수정</button>
-                        <button class="comment-delete-btn">삭제</button>
-                    </div>
-                </div>
-                <div class="comment-content">
-                    추가 질문이 있는데, 이 부분은 어떻게 처리하면 될까요?
-                </div>
-
-                <div class="comment-reply">
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <div>
-                                <span class="comment-author">홍길동</span>
-                                <span class="comment-date">2024-01-15 15:00</span>
-                            </div>
-                            <div class="comment-actions">
-                                <button class="comment-edit-btn">수정</button>
-                                <button class="comment-delete-btn">삭제</button>
-                            </div>
-                        </div>
-                        <div class="comment-content">
-                            ↳ 그 부분은 다음과 같이 처리하시면 됩니다.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="comment-list"></div>
     </div>
 </div>
 </body>
@@ -142,6 +76,9 @@
 <script>
 
     const pageForm = $("#pageForm");
+
+    const formatDate = d =>
+        new Date(d).toISOString().slice(0,16).replace('T',' ');
 
     function addButtonEvent() {
         $(".btn-cancel").on("click", function (e) {
@@ -160,6 +97,7 @@
         });
     }
 
+    //게시글 삭제
     function deleteBoard() {
         $.ajax({
             url: `/board/${board.id}`,
@@ -187,8 +125,58 @@
         })
     }
 
+    //댓글 데이터 불러오기
+    function loadCommentList() {
+        $.ajax({
+           url: `/comment/${board.id}`,
+           method: 'get',
+           success: function (response) {
+               if (response.success) {
+                   loadCommentHTML(response.data);
+               }
+           },
+           error: function (xhr, status, error) {
+               let response;
+               try {
+                   response = JSON.parse(xhr.responseText);
+               } catch (e) {
+                   alert("응답 데이터 처리 중 오류가 발생하였습니다");
+                   return e;
+               }
+               const errorMessage = response.message;
+               if (xhr.status === 404) {
+                   alert(errorMessage);
+               } else if (xhr.status === 500) {
+                   alert(errorMessage);
+               }
+           }
+        });
+    }
+
+    //댓글 HTML VIEW
+    function loadCommentHTML(data) {
+        let str = '';
+        $.each(data, function (i, value) {
+            str += `<div class="comment-item" data-comment-id=\${value.id}>
+                        <div class="comment-header">
+                            <div>
+                                <span class="comment-author">\${value.regUserName}</span>
+                                <span class="comment-date">\${formatDate(value.regDate)}</span>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="comment-edit-btn">수정</button>
+                                <button class="comment-delete-btn">삭제</button>
+                            </div>
+                        </div>
+                        <div class="comment-content">\${value.content}</div>
+                    </div>`;
+        });
+        $(".comment-list").html(str);
+    }
+
     $(function () {
        addButtonEvent();
+       loadCommentList();
     });
 </script>
 </html>
