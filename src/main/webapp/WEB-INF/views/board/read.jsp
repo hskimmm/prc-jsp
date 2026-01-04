@@ -54,11 +54,11 @@
 
         <!-- 댓글 작성 -->
         <div class="comment-write">
-            <form method="post" action="">
-                <textarea name="comment" placeholder="댓글을 입력하세요" required></textarea>
+            <form id="commentWriteForm">
+                <textarea id="content" name="content" placeholder="댓글을 입력하세요" required></textarea>
                 <div class="comment-write-footer">
-                    <input type="text" name="commentWriter" placeholder="작성자" required>
-                    <button type="submit" class="btn btn-primary">댓글 등록</button>
+                    <input type="text" id="regUserName" name="regUserName" placeholder="작성자" required>
+                    <button type="button" class="btn btn-primary btn-comment-write">댓글 등록</button>
                 </div>
             </form>
         </div>
@@ -77,6 +77,8 @@
 
     const pageForm = $("#pageForm");
 
+    const boardIdValue = ${board.id};
+
     const formatDate = d =>
         new Date(d).toISOString().slice(0,16).replace('T',' ');
 
@@ -94,6 +96,11 @@
            if (confirm("게시글을 삭제하시겠습니까?")) {
                deleteBoard();
            }
+        });
+
+        $(".btn-comment-write").on("click", function (e) {
+           e.preventDefault();
+           createComment();
         });
     }
 
@@ -172,6 +179,59 @@
                     </div>`;
         });
         $(".comment-list").html(str);
+    }
+
+    //댓글 등록
+    function createComment() {
+        let contentValue = $("textarea[name='content']").val();
+        let regUserNameValue = $("input[name='regUserName']").val();
+
+        if (!contentValue) {
+            alert("댓글 내용을 입력하세요");
+            $("#content").focus();
+            return;
+        }
+
+        if (!regUserNameValue) {
+            alert("댓글 작성자를 입력하세요");
+            $("#regUserName").focus();
+            return;
+        }
+
+        const data = {
+            boardId: boardIdValue,
+            content: contentValue,
+            regUserName: regUserNameValue
+        }
+
+        $.ajax({
+           url: '/comment',
+           method: 'POST',
+           data: JSON.stringify(data),
+           contentType: 'application/json',
+           success: function (response) {
+               if (response.success) {
+                   alert(response.message);
+                   $("textarea[name='content']").val('');
+                   $("input[name='regUserName']").val('');
+                   loadCommentList();
+               }
+           },
+           error: function (xhr, status, error) {
+               let response;
+               try {
+                   response = JSON.parse(xhr.responseText);
+               } catch (e) {
+                   alert("응답 데이터 처리 중 오류가 발생하였습니다");
+               }
+               const errorMessage = response.message;
+               if (xhr.status === 404) {
+                   alert(errorMessage);
+               } else if (xhr.status === 500) {
+                   alert(errorMessage);
+               }
+           }
+        });
     }
 
     $(function () {

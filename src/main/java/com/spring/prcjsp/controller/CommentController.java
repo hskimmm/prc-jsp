@@ -1,14 +1,14 @@
 package com.spring.prcjsp.controller;
 
+import com.spring.prcjsp.dto.CreateCommentDTO;
 import com.spring.prcjsp.response.ApiResponse;
 import com.spring.prcjsp.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/comment")
@@ -20,6 +20,12 @@ public class CommentController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> getComments(@PathVariable(value = "id") Long id) {
         ApiResponse<?> response = commentService.getComments(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<?>> createComment(@Valid @RequestBody CreateCommentDTO createCommentDTO) {
+        ApiResponse<?> response = commentService.createComment(createCommentDTO);
         return ResponseEntity.ok(response);
     }
 }

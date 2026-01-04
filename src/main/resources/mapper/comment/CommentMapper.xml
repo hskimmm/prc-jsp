@@ -6,4 +6,8 @@
     <select id="getComments" resultType="comment">
         SELECT * FROM board_comment WHERE board_id = #{id} ORDER BY id DESC
     </select>
+
+    <insert id="createComment">
+        INSERT INTO board_comment ( board_id, content, reg_user_name ) VALUES ( #{boardId}, #{content}, #{regUserName} )
+    </insert>
 </mapper>
